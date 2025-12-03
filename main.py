@@ -16,7 +16,7 @@ st.set_page_config(page_title="YOLOv5 PDF Detector", layout="wide")
 
 # 初始化 Session State
 if 'detector' not in st.session_state:
-    # 假设权重文件在当前目录的 weights 文件夹下
+    # 权重文件应当在当前目录的 weights 文件夹下
     st.session_state.detector = YOLOv5Detector(weights_path='weights/yolov5s.pt')
 
 def process_file(uploaded_file):
