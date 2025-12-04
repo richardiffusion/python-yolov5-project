@@ -1,46 +1,82 @@
 > 本项目是 https://github.com/TinyCircl/CoreML-YOLOv5-ForPaper 的Python重写版本，将Swift实现转换为Python/PyTorch实现。
 > 感谢原作者 [@TinyCircl.AI] [@xuao575] 的优秀工作。
 
+# YOLOv5 PDF Figure Detector (Python Version)
+这是一个基于 Python Streamlit 的 YOLOv5 推理应用，重写自原 iOS (CoreML) 项目。
+它能够读取 PDF 文件，将其转换为图像，识别其中的插图（Figure），并使用 OCR 提取相关的文字说明。
 
-##  我的实现
-- **仓库地址**：[https://github.com/richardiffusion/python-yolov5-project]
-- **语言/框架**：Python + PyTorch/YOLOv5
-- **保持的核心功能**：PDF解析、文本检测、OCR处理、可视化
-- **架构变化**：参考了原项目的模块设计，但用Python包结构重构
-
-##  重写目的
-1. 学习项目架构设计思路
-2. 为需要跨平台（Windows/Linux）使用的开发者提供Python版本参考
-
-## 文件结构
-```txt
-pdf_detector_py/
-├── main.py                  # [入口] 程序的启动文件，包含 UI 界面代码 (Streamlit)
-├── requirements.txt         # [配置] 依赖库列表 (torch, streamlit, opencv 等)
-├── weights/                 # [资源] 存放模型权重文件
-│   └── yolov5s.pt           # <--- ⚠️ 注意：这里放入 .pt 模型
-└── core/                    # [逻辑包] 存放所有的后端处理逻辑
-    ├── __init__.py          
-    ├── detector.py          # [核心] 负责加载模型、执行 YOLOv5 推理
-    ├── pdf_utils.py         # [工具] 负责将 PDF 转换为图片
-    ├── ocr_engine.py        # [工具] 负责 OCR 文字识别
-    ├── visualizer.py        # [工具] 负责在图片上画框、裁剪图片
-    └── models.py            # [数据] 定义 Detection, PageResult 等数据结构
+## 📂 项目结构
+```text
+.
+├── main.py                  # [入口] Streamlit 启动文件
+├── requirements.txt         # Python 依赖库
+├── weights/                 # 存放模型权重
+│   └── best.pt              # 请在此放入训练好的 YOLOv5 模型
+├── packages/                # 核心逻辑包
+│   ├── detector.py          # YOLOv5 推理 (基于 ultralytics)
+│   ├── pdf_processor.py     # PDF 转图片 (基于 pdf2image)
+│   ├── ocr_engine.py        # OCR 识别 (基于 Tesseract)
+│   ├── visualizer.py        # 绘图与裁剪工具
+│   └── models.py            # 数据结构定义
+└── venv/                    # (自动生成) Python 虚拟环境
 ```
 
-## 依赖
-streamlit
-torch
-torchvision
-opencv-python-headless
-numpy
-pdf2image
-pytesseract
-Pillow
-pandas
-ultralytics
+## 🛠️ 环境准备 (Prerequisites)
+本项目依赖两个外部系统工具，必须安装才能运行：
 
-## 运行
+1. 安装 Poppler (用于 PDF 转图片)
+Windows:
+
+下载 Poppler for Windows。
+
+解压并将 bin 文件夹路径（例如 F:\Program Files\Poppler\Library\bin）添加到系统 Path 环境变量。
+
+Mac: brew install poppler
+
+2. 安装 Tesseract-OCR (用于文字识别)
+Windows:
+
+下载并安装 Tesseract-OCR。
+
+将安装目录（例如 F:\Program Files\Tesseract-OCR）添加到系统 Path 环境变量。
+
+重要：确保安装目录下 tessdata 文件夹内包含 eng.traineddata (英文) 和 chi_sim.traineddata (简体中文) 语言包。缺一不可。
+
+如果缺失，请新建环境变量 TESSDATA_PREFIX 指向 tessdata 文件夹路径。
+
+Mac: brew install tesseract tesseract-lang
+
+## 🚀 快速开始
+1. 创建虚拟环境
+建议使用虚拟环境以隔离依赖：
+```Bash
+# 创建
+python -m venv venv
+
+# 激活 (Windows)
+.\venv\Scripts\activate
+
+# 激活 (Mac/Linux)
+source venv/bin/activate
+```
+2. 安装 Python 依赖
+```Bash
 pip install -r requirements.txt
+```
+3. 准备模型
+将你训练好的 .pt 权重文件命名为 best.pt，放入 weights/ 文件夹中。
 
+4. 运行应用
+```Bash
 streamlit run main.py
+```
+
+## ⚠️ 常见问题
+Q: 报错 TesseractNotFoundError 或 tesseract is not installed? 
+A: 请检查是否将 Tesseract 的安装目录添加到了系统 Path 环境变量中。如果添加后无效，请重启终端或电脑。
+
+Q: 报错 Error opening data file ... chi_sim.traineddata? 
+A: tessdata 文件夹缺少对应的语言包。请去 GitHub 下载 chi_sim.traineddata 和 eng.traineddata 并放入该文件夹。
+
+Q: 报错 Unable to get page count? 
+A: Poppler 未正确安装或未配置 Path 环境变量。
